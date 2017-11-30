@@ -149,17 +149,17 @@ SUM:    MOV A, @R0
         MOV TB8, C
         MOV SBUF, A    ; send low byte
 		
-	MOV A, R6
+	MOV A, R4
 	MOV R5, A
-        MOV R0, #48H   ; reset R0
-OUT:    JNB TI, $
+        MOV R0, #40H   ; reset R0
+DONE:   JNB TI, $
         CLR TI
         MOV A, @R0
         MOV C, P
         MOV TB8, C     ; set parity
         MOV SBUF, A    ; output result
         INC R0
-        DJNZ R5, OUT
+        DJNZ R5, DONE
 		
 	MOV SBUF, #00H ; make sure SBUF cleared everything
         END
