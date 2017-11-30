@@ -123,32 +123,30 @@ JUMP:	MOV @R1, A
         DJNZ R5, CARRY ; repeat for length in bytes
 		
 		
-	MOV R0, #40H
-	MOV R1, #48H
-	MOV A, R4
-	MOV R5, A
+        MOV R0, #40H   ; return to beginning of P
+        MOV R1, #48H   ; return to beginning of C/G
+        MOV A, R2
+        MOV R5, A
 SUM:    MOV A, @R0
-        XRL A, @R1	;start addition
-        MOV @R0, A     
-        INC R0         ; move down a bit
-        INC R1
+        XRL A, @R1
+        MOV @R0, A     ; compute final sum
+        INC R0         ; move to next bit of P
+        INC R1         ; move to next bit of Carry string
         DJNZ R5, SUM
-		
-        CLR TR1        ; stop timing
+        CLR TR1        ; stop timer
 
-	JNB TI, $
+TIME:   JNB TI, $      ; wait until ready to transmit
         CLR TI
         MOV A, TH1
         MOV C, P
-        MOV TB8, C     ; set parity
-        MOV SBUF, A    ; send high byte through serial
-        JNB TI, $      ; wait
+        MOV TB8, C     ; set odd parity bit
+        MOV SBUF, A    ; output high byte of time
+        JNB TI, $      ; wait until ready to transmit
         CLR TI
-		
         MOV A, TL1
-        MOV C, P       ; set parity
+        MOV C, P       ; set odd parity bit
         MOV TB8, C
-        MOV SBUF, A    ; send low byte
+        MOV SBUF, A    ; output low byte of time
 		
         MOV A, R4
         MOV R5, A
