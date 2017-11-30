@@ -4,33 +4,34 @@
 ;CompE 3150
 ;Final Project
 
-org 0000
+;org 0000
 MOV R0, #40H  ; Input 1
 MOV R1, #48H  ; Input 2
 MOV R3, #50H  ; Carry Register
 
 ; R0 and R1 will be inputs, R3 will be our carry register, R4 will be our length
-; R5 will be our counter, R6 will be our temp hold
-		MOV R4, #1H
+; R5 will be our counter, will be our temp hold
+		
+	MOV R4, #1H
 		
 	MOV 40H, #0AH  ;please manually input bytes
-	;MOV #41, #_____
-	;MOV #42, #_____
-	;MOV #43, #_____
-	;MOV #44, #_____
-	;MOV #45, #_____
-	;MOV #46, #_____
-	;MOV #47, #_____
+	;MOV 41H, #_____
+	;MOV 42H, #_____
+	;MOV 43H, #_____
+	;MOV 44H, #_____
+	;MOV 45H, #_____
+	;MOV 46H, #_____
+	;MOV 47H, #_____
 		
 		
 	MOV 48H, #0AH
-	;MOV #49, #_____
-	;MOV #4A, #_____
-	;MOV #4B, #_____
-	;MOV #4C, #_____
-	;MOV #4D, #_____
-	;MOV #4E, #_____
-	;MOV #4F, #_____
+	;MOV 49H, #_____
+	;MOV 4AH, #_____
+	;MOV 4BH, #_____
+	;MOV 4CH, #_____
+	;MOV 4DH, #_____
+	;MOV 4EH, #_____
+	;MOV 4FH, #_____
 
 	MOV TMOD, #00010000B ;Setup for timer and output
 	MOV TL1, #00H
@@ -67,8 +68,9 @@ PRINT2: JNB TI, $      ; wait until ready to transmit
 		
 	MOV A, R4
 	MOV R5, A
+	MOV SBUF, #00H
 	SETB TR1
-		
+	
 INPUT:  MOV A, @R0  ; hold each byte of R0
 	MOV R6, A
 		
@@ -97,7 +99,7 @@ INPUT:  MOV A, @R0  ; hold each byte of R0
 
 CARRY:  MOV B, @R1
         MOV A, @R0
-        MOV R7, #8H    ; set counter for eight bits
+        MOV R6, #8H    ; set counter for eight bits
 	MOV 0D6H, C
 INTLOOP: ANL C, 0E0H
         ORL C, 0F0H
@@ -108,7 +110,7 @@ INTLOOP: ANL C, 0E0H
         RR A           ; rotate byte
         MOV B, A
         MOV A, @R1     ; reset P
-        DJNZ R7, INTLOOP  ; loop for byte
+        DJNZ R6, INTLOOP  ; loop for byte
 	MOV 0D5H, C
 	CLR C
 	RLC A		; rotate carry string
@@ -124,7 +126,7 @@ JUMP:	MOV @R1, A
 		
 	MOV R0, #40H
 	MOV R1, #48H
-	MOV A, R2
+	MOV A, R4
 	MOV R5, A
 SUM:    MOV A, @R0
         XRL A, @R1	;start addition
@@ -148,6 +150,7 @@ SUM:    MOV A, @R0
         MOV C, P       ; set parity
         MOV TB8, C
         MOV SBUF, A    ; send low byte
+	MOV SBUF, #00H
 		
 	MOV A, R4
 	MOV R5, A
