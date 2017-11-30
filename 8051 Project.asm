@@ -13,39 +13,39 @@ MOV R3, #50H  ; Carry Register
 ; R5 will be our counter, R6 will be our temp hold
 		MOV R4, #1H
 		
-		MOV #40, #0AH  ;please manually input bytes
-		;MOV #41, #_____
-		;MOV #42, #_____
-		;MOV #43, #_____
-		;MOV #44, #_____
-		;MOV #45, #_____
-		;MOV #46, #_____
-		;MOV #47, #_____
+	MOV 40H, #0AH  ;please manually input bytes
+	;MOV #41, #_____
+	;MOV #42, #_____
+	;MOV #43, #_____
+	;MOV #44, #_____
+	;MOV #45, #_____
+	;MOV #46, #_____
+	;MOV #47, #_____
 		
 		
-		MOV #48, #0AH
-		;MOV #49, #_____
-		;MOV #4A, #_____
-		;MOV #4B, #_____
-		;MOV #4C, #_____
-		;MOV #4D, #_____
-		;MOV #4E, #_____
-		;MOV #4F, #_____
+	MOV 48H, #0AH
+	;MOV #49, #_____
+	;MOV #4A, #_____
+	;MOV #4B, #_____
+	;MOV #4C, #_____
+	;MOV #4D, #_____
+	;MOV #4E, #_____
+	;MOV #4F, #_____
 
-		MOV TMOD, #00010000B ;Setup for timer and output
-		MOV TL1, #00H
-		MOV TH1, #00H
-		MOV SCON, #10000010B
+	MOV TMOD, #00010000B ;Setup for timer and output
+	MOV TL1, #00H
+	MOV TH1, #00H
+	MOV SCON, #10000010B
 	
 	MOV A, R4
 	MOV R5, A
 PRINT:	JNB TI, $
-		CLR TI
-		MOV A, @R0
-		MOV C, P
-		MOV TB8, C
-		MOV SBUF, A
-		INC R0         ; move to next byte
+	CLR TI
+	MOV A, @R0
+	MOV C, P
+	MOV TB8, C
+	MOV SBUF, A
+	INC R0         ; move to next byte
         DJNZ R5, PRINT
 		
         MOV R0, #40H   ; reset to beginning of A
@@ -65,20 +65,20 @@ PRINT2: JNB TI, $      ; wait until ready to transmit
         MOV R1, #48H   ; reset to beginning of B
 
 		
-		MOV A, R4
-		MOV R5, A
-		SETB TR1
+	MOV A, R4
+	MOV R5, A
+	SETB TR1
 		
 INPUT:  MOV A, @R0  ; hold each byte of R0
-		MOV R6, A
+	MOV R6, A
 		
-		MOV A, @R0
+	MOV A, @R0
         XRL A, @R1 ; propagate
-		MOV @R0, A
+	MOV @R0, A
 		
-		MOV A, @R1
+	MOV A, @R1
         ANL A, R6  ; generate
-		MOV @R1, A
+	MOV @R1, A
         INC R0
         INC R1
         DJNZ R5, INPUT
