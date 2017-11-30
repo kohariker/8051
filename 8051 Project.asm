@@ -110,6 +110,7 @@ INTLOOP: ANL C, 0E0H
         MOV B, A
         MOV A, @R1     ; reset P
         DJNZ R6, INTLOOP  ; loop for byte
+	MOV A, B
 	MOV 0D5H, C
 	CLR C
 	RLC A		; rotate carry string
