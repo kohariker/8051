@@ -68,7 +68,6 @@ PRINT2: JNB TI, $      ; wait until ready to transmit
 		
 	MOV A, R4
 	MOV R5, A
-	MOV SBUF, #00H
 	SETB TR1
 	
 INPUT:  MOV A, @R0  ; hold each byte of R0
@@ -150,7 +149,6 @@ SUM:    MOV A, @R0
         MOV C, P       ; set parity
         MOV TB8, C
         MOV SBUF, A    ; send low byte
-	MOV SBUF, #00H
 		
 	MOV A, R4
 	MOV R5, A
