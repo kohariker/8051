@@ -66,33 +66,35 @@ PRINT2: JNB TI, $      ; wait until ready to transmit
         MOV R1, #48H   ; reset to beginning of B
 
 		
-        SETB TR1       ; start timer
-        MOV A, R2      ; init counter
-        MOV R5, A
-LOAD:   MOV A, @R0     ; temp hold for byte of R6 data
-        MOV R4, A
-        MOV A, @R0
-        XRL A, @R1     ; propagate
-        MOV @R0, A
+	MOV A, R4
+	MOV R5, A
+	SETB TR1
+	
+INPUT:  MOV A, @R0  ; hold each byte of R0
+	MOV R6, A
+		
+	MOV A, @R0
+        XRL A, @R1 ; propagate
+	MOV @R0, A
+		
+	MOV A, @R1
+        ANL A, R6  ; generate
+	MOV @R1, A
+        INC R0
+        INC R1
+        DJNZ R5, INPUT
 
-        MOV A, @R1
-        ANL A, R4      ; generate
-        MOV @R1, A
-        INC R0         ; move to next bit of P
-        INC R1         ; move to next bit of G
-        DJNZ R5, LOAD
-
-        MOV A, R2      ; reset R5
-        MOV R5, A
-        CLR C          ; C will be used as Ci in boolean equation
-        MOV A, R2
-        DEC A
+        MOV A, R4
+	MOV R5, A ; reset counter
+        CLR C
+	MOV A, R4
+	DEC A
         ADD A, #40H
-        MOV R0, A      ; point at least significant byte
+        MOV R0, A  
         MOV A, R2
         DEC A
         ADD A, #48H
-        MOV R1, A 
+        MOV R1, A
 
 CARRY:  MOV B, @R1
         MOV A, @R0
@@ -108,6 +110,7 @@ INTLOOP: ANL C, 0E0H
         MOV B, A
         MOV A, @R1     ; reset P
         DJNZ R6, INTLOOP  ; loop for byte
+	MOV A, B
 	MOV 0D5H, C
 	CLR C
 	RLC A		; rotate carry string
@@ -121,42 +124,44 @@ JUMP:	MOV @R1, A
         DJNZ R5, CARRY ; repeat for length in bytes
 		
 		
-        MOV R0, #40H   ; return to beginning of P
-        MOV R1, #48H   ; return to beginning of C/G
-        MOV A, R2
-        MOV R5, A
+	MOV R0, #40H
+	MOV R1, #48H
+	MOV A, R4
+	MOV R5, A
 SUM:    MOV A, @R0
-        XRL A, @R1
-        MOV @R0, A     ; compute final sum
-        INC R0         ; move to next bit of P
-        INC R1         ; move to next bit of Carry string
+        XRL A, @R1	;start addition
+        MOV @R0, A     
+        INC R0         ; move down a bit
+        INC R1
         DJNZ R5, SUM
-        CLR TR1        ; stop timer
+		
+        CLR TR1        ; stop timing
 
-TIME:   JNB TI, $      ; wait until ready to transmit
+	JNB TI, $
         CLR TI
         MOV A, TH1
         MOV C, P
-        MOV TB8, C     ; set odd parity bit
-        MOV SBUF, A    ; output high byte of time
-        JNB TI, $      ; wait until ready to transmit
+        MOV TB8, C     ; set parity
+        MOV SBUF, A    ; send high byte through serial
+        JNB TI, $      ; wait
         CLR TI
-        MOV A, TL1
-        MOV C, P       ; set odd parity bit
-        MOV TB8, C
-        MOV SBUF, A    ; output low byte of time
 		
-        MOV A, R4
-        MOV R5, A
-        MOV R0, #40H   ; reset R0 to beginning of result string
-OUT:    JNB TI, $      ; wait until ready to transmit
+        MOV A, TL1
+        MOV C, P       ; set parity
+        MOV TB8, C
+        MOV SBUF, A    ; send low byte
+		
+	MOV A, R4
+	MOV R5, A
+        MOV R0, #40H   ; reset R0
+DONE:   JNB TI, $
         CLR TI
         MOV A, @R0
         MOV C, P
-        MOV TB8, C     ; set odd parity bit
-        MOV SBUF, A    ; output byte of result
+        MOV TB8, C     ; set parity
+        MOV SBUF, A    ; output result
         INC R0
-        DJNZ R5, OUT
+        DJNZ R5, DONE
 		
 	MOV SBUF, #00H ; make sure SBUF cleared everything
         END
