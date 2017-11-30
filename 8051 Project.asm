@@ -98,30 +98,29 @@ INPUT:  MOV A, @R0  ; hold each byte of R0
 
 CARRY:  MOV B, @R1
         MOV A, @R0
-        MOV R4, #8H    ; set counter for 8 rotations
-        MOV 0D6H, C    ; store carry-in
-BITE:   ANL C, 0E0H    ; intermediate = Ci AND P(i+1)
+        MOV R6, #8H    ; set counter for eight bits
+	MOV 0D6H, C
+INTLOOP: ANL C, 0E0H
         ORL C, 0F0H
-        MOV 0F0H, C    ; save Ci into C as well as R3.0
-        RR A           ; rotate P byte
-        MOV @R1, A     ; store P byte in mem
-        MOV A, B       ; move G/C to A for rotation
-        RR A           ; rotate G/C byte
-        MOV B, A       ; replace byte in R3
-        MOV A, @R1     ; reload P from mem
-        DJNZ R4, BITE  ; repeat for whole byte
+        MOV 0F0H, C    ; save Ci into C
+        RR A           ; rotate A
+        MOV @R1, A	   ; store P in R1
         MOV A, B
-        MOV 0D5H, C    ; store carry-out
-        CLR C
-        RLC A          ; rotate C/G string to align carrys over correct bits
-        MOV C, 0D5H    ; restore carry-out
-        JNB 0D6H, NOINC
-        INC A          ; increment if there was a carry-in
-NOINC   MOV @R1, A     ; replace C/G in memory
+        RR A           ; rotate byte
+        MOV B, A
+        MOV A, @R1     ; reset P
+        DJNZ R6, INTLOOP  ; loop for byte
+	MOV 0D5H, C
+	CLR C
+	RLC A		; rotate carry string
+	MOV C, 0D5H
+	JNB 0D6H, JUMP
+	INC A
+JUMP:	MOV @R1, A
 
         DEC R0
         DEC R1
-        DJNZ R5, CARRY
+        DJNZ R5, CARRY ; repeat for length in bytes
 		
 		
         MOV R0, #40H   ; return to beginning of P
