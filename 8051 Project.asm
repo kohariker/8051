@@ -9,11 +9,11 @@ MOV R0, #40H  ; Input 1
 MOV R1, #48H  ; Input 2
 MOV R3, #50H  ; Carry Register
 
-; R1 and R1 will be inputs, R3 will be our carry register, R4 will be our length
+; R0 and R1 will be inputs, R3 will be our carry register, R4 will be our length
 ; R5 will be our counter, R6 will be our temp hold
 		MOV R4, #1H
 		
-		MOV @R0, #0AH  ;please manually input bytes
+		MOV #40, #0AH  ;please manually input bytes
 		;MOV #41, #_____
 		;MOV #42, #_____
 		;MOV #43, #_____
@@ -23,7 +23,7 @@ MOV R3, #50H  ; Carry Register
 		;MOV #47, #_____
 		
 		
-		MOV @R1, #0AH
+		MOV #48, #0AH
 		;MOV #49, #_____
 		;MOV #4A, #_____
 		;MOV #4B, #_____
@@ -37,6 +37,8 @@ MOV R3, #50H  ; Carry Register
 		MOV TH1, #00H
 		MOV SCON, #10000010B
 	
+	MOV A, R4
+	MOV R5, A
 PRINT:	JNB TI, $
 		CLR TI
 		MOV A, @R0
@@ -48,7 +50,7 @@ PRINT:	JNB TI, $
 		
         MOV R0, #40H   ; reset to beginning of A
 
-        MOV A, R2      ; reset counter
+        MOV A, R4      ; reset counter
         MOV R5, A
 		
 PRINT2: JNB TI, $      ; wait until ready to transmit
@@ -82,10 +84,10 @@ INPUT:  MOV A, @R0  ; hold each byte of R0
         DJNZ R5, INPUT
 
         MOV A, R4
-		MOV R5, A ; reset counter
+	MOV R5, A ; reset counter
         CLR C
-		MOV A, R4
-		DEC A
+	MOV A, R4
+	DEC A
         ADD A, #40H
         MOV R0, A  
         MOV A, R2
@@ -115,12 +117,12 @@ INTLOOP:   ANL C, 0E0H
         DJNZ R5, CARRY ; repeat for length in bytes
 		
 		
-		MOV R0, #40H
-		MOV R1, #48H
-		MOV A, R2
-		MOV R5, A
+	MOV R0, #40H
+	MOV R1, #48H
+	MOV A, R2
+	MOV R5, A
 SUM:    MOV A, @R0
-        XRL A, @R1		;start addition
+        XRL A, @R1	;start addition
         MOV @R0, A     
         INC R0         ; move down a bit
         INC R1
@@ -128,7 +130,7 @@ SUM:    MOV A, @R0
 		
         CLR TR1        ; stop timing
 
-		JNB TI, $
+	JNB TI, $
         CLR TI
         MOV A, TH1
         MOV C, P
@@ -142,8 +144,8 @@ SUM:    MOV A, @R0
         MOV TB8, C
         MOV SBUF, A    ; send low byte
 		
-		MOV A, R6
-		MOV R5, A
+	MOV A, R6
+	MOV R5, A
         MOV R0, #48H   ; reset R0
 OUT:    JNB TI, $
         CLR TI
@@ -154,5 +156,5 @@ OUT:    JNB TI, $
         INC R0
         DJNZ R5, OUT
 		
-		MOV SBUF, #00H ; make sure SBUF cleared everything
+	MOV SBUF, #00H ; make sure SBUF cleared everything
         END
