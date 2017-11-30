@@ -98,7 +98,8 @@ INPUT:  MOV A, @R0  ; hold each byte of R0
 CARRY:  MOV B, @R1
         MOV A, @R0
         MOV R7, #8H    ; set counter for eight bits
-INTLOOP:   ANL C, 0E0H
+	MOV 0D6H, C
+INTLOOP: ANL C, 0E0H
         ORL C, 0F0H
         MOV 0F0H, C    ; save Ci into C
         RR A           ; rotate A
@@ -108,9 +109,13 @@ INTLOOP:   ANL C, 0E0H
         MOV B, A
         MOV A, @R1     ; reset P
         DJNZ R7, INTLOOP  ; loop for byte
-        MOV A, B
-        RL A           ; rotate carry string
-        MOV @R1, A     ; replace gen with carry in memory
+	MOV 0D5H, C
+	CLR C
+	RLC A		; rotate carry string
+	MOV C, 0D5H
+	JNB 0D6H, JUMP
+	INC A
+JUMP:	MOV @R1, A
 
         DEC R0
         DEC R1
