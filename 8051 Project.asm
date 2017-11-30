@@ -66,35 +66,33 @@ PRINT2: JNB TI, $      ; wait until ready to transmit
         MOV R1, #48H   ; reset to beginning of B
 
 		
-	MOV A, R4
-	MOV R5, A
-	SETB TR1
-	
-INPUT:  MOV A, @R0  ; hold each byte of R0
-	MOV R6, A
-		
-	MOV A, @R0
-        XRL A, @R1 ; propagate
-	MOV @R0, A
-		
-	MOV A, @R1
-        ANL A, R6  ; generate
-	MOV @R1, A
-        INC R0
-        INC R1
-        DJNZ R5, INPUT
+        SETB TR1       ; start timer
+        MOV A, R2      ; init counter
+        MOV R5, A
+LOAD:   MOV A, @R0     ; temp hold for byte of R6 data
+        MOV R4, A
+        MOV A, @R0
+        XRL A, @R1     ; propagate
+        MOV @R0, A
 
-        MOV A, R4
-	MOV R5, A ; reset counter
-        CLR C
-	MOV A, R4
-	DEC A
+        MOV A, @R1
+        ANL A, R4      ; generate
+        MOV @R1, A
+        INC R0         ; move to next bit of P
+        INC R1         ; move to next bit of G
+        DJNZ R5, LOAD
+
+        MOV A, R2      ; reset R5
+        MOV R5, A
+        CLR C          ; C will be used as Ci in boolean equation
+        MOV A, R2
+        DEC A
         ADD A, #40H
-        MOV R0, A  
+        MOV R0, A      ; point at least significant byte
         MOV A, R2
         DEC A
         ADD A, #48H
-        MOV R1, A
+        MOV R1, A 
 
 CARRY:  MOV B, @R1
         MOV A, @R0
